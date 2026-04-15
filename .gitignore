@@ -1,0 +1,6 @@
+*.npy
+*.index
+*.csv
+__pycache__/
+.env
+df_chunks.csv
