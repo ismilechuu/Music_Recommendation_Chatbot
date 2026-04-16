@@ -3,7 +3,7 @@ from openai import OpenAI
 def call_llm(prompt):
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
-        api_key="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"
+        api_key="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"
     )
     response = client.chat.completions.create(
         model="deepseek/deepseek-chat",
