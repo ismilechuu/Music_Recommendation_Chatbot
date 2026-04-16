@@ -1,6 +1,16 @@
+# Data and Vector Index Files
+data/
 *.npy
 *.index
 *.csv
+
+# Python Cache
 __pycache__/
+*.pyc
+*.pyo
+
+# Streamlit Cache
+.streamlit/
+
+# Secrets
 .env
-df_chunks.csv
