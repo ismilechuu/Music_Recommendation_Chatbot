@@ -69,14 +69,14 @@ def process_query(query, df_chunks, index, model, reranker):
         return
 
     with st.spinner("Searching for the best semantic matches..."):
-        results = search(query, df_chunks, index, model, reranker)
+        results = search(query, df_chunks, index, model, reranker, chat_history=st.session_state.chat_history)
 
     recommendation = None
     error_message = None
 
     with st.spinner("Analyzing songs and generating recommendation via LLM..."):
         try:
-            recommendation = recommend_songs(query, results)
+            recommendation = recommend_songs(query, results, st.session_state.chat_history)
         except Exception as e:
             error_message = str(e)
             recommendation = (

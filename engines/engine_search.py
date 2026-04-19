@@ -36,13 +36,17 @@ def keyword_overlap_score(query, text):
         return 0.0
     return len(q_words & t_words) / len(q_words)
 
-# =========================
-# SEARCH
-# =========================
-def search(query, df_chunks, index, model, reranker, top_k=5, fetch_k=50):
+def search(query, df_chunks, index, model, reranker, top_k=5, fetch_k=30, chat_history=None):
 
-    # 1. Retrieve
-    query_vec = model.encode([query], normalize_embeddings=True)
+    # สร้าง Contextual Search Query (เอาคำถามเก่ามาต่อกับคำถามใหม่)
+    search_query = query
+    if chat_history and len(chat_history) > 0:
+        # เพื่อไม่ให้ Query ยาวเกินไป เราอาจจะดึงแค่ 2 คำถามล่าสุดมาต่อ
+        past_queries = [turn["query"] for turn in chat_history[-2:]]
+        search_query = " ".join(past_queries) + " " + query
+
+    # 1. Retrieve (ใช้ search_query ที่มีบริบทอดีตด้วย)
+    query_vec = model.encode([search_query], normalize_embeddings=True)
     scores, indices = index.search(query_vec, fetch_k)
 
     candidates = df_chunks.iloc[indices[0]].copy()
@@ -58,7 +62,8 @@ def search(query, df_chunks, index, model, reranker, top_k=5, fetch_k=50):
             f"Emotion: {row['emotion']}. "
             f"Lyrics: {row['chunks']}"
         )
-        pairs.append((query, doc_text))
+        # เทียบกับ search_query
+        pairs.append((search_query, doc_text))
 
     rerank_scores = reranker.predict(pairs)
     candidates["rerank_score"] = rerank_scores
@@ -68,7 +73,7 @@ def search(query, df_chunks, index, model, reranker, top_k=5, fetch_k=50):
 
     # 3. Keyword score
     candidates["keyword_score"] = candidates["combined_text"].apply(
-        lambda x: keyword_overlap_score(query, x)
+        lambda x: keyword_overlap_score(search_query, x)
     )
 
     # 4. Normalize retrieval
