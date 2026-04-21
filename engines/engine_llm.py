@@ -28,6 +28,8 @@ STRICT RULE:
 - Do NOT recommend songs that do not clearly match the user's latest request.
 - If a song does not match the requested mood or theme, you MUST exclude it.
 - If none of the songs match well, say: "I couldn't find a good match from the current list."
+- Only answer using the provided songs.
+- If the question is unrelated, say you cannot answer.
 """
 
     messages = [{"role": "system", "content": system_message}]
